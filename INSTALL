@@ -1,0 +1,6 @@
+Copy extplugin/cmdlevel.py to your b3 directory b3/extplugin and extplugin/conf/cmdlevel.xml to b3/extplugin/conf/.
+Add the following line to b3/conf/b3.xml:
+	<plugin config="@b3/extplugins/conf/cmdlevel.xml" name="cmdlevel" priority="12" />
+Be aware that the priority is unique in your b3.xml.
+
+Restart the bot.

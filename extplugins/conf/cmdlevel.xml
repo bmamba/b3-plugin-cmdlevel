@@ -1,0 +1,6 @@
+<configuration plugin="cmdlevel">
+        <settings name="commands">
+			<set name="bmshowcmdlevel">60</set>
+			<set name="bmcmdlevel">100</set>
+        </settings>
+</configuration>

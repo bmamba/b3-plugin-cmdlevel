@@ -1,0 +1,12 @@
+You can change the command level using !cmdlevel <command> <level>. The plugin
+also changes the configuration file of the appropriate plugin. Instead of
+!cmdlevel you can also use !bmcmdlevel.
+
+The command level can be shown using !showcmdlevel <command>.
+
+This plugin is tested for Urban Terror 4.1 and the B3 bot versions 1.3 and
+1.3.4b.
+
+This plugin changes configuration files of other plugins. You should make
+copies of all configuration files although there were no problems testing
+this plugin. Use the plugin by your own risk.
