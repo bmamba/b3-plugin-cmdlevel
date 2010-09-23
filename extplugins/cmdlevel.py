@@ -31,8 +31,6 @@ import b3, os, re
 import b3.events
 import b3.plugin
 
-user_agent = "B3 CmdLevel plugin/%s" % __version__
-
 class CmdlevelPlugin(b3.plugin.Plugin):
 
 	def startup(self):
