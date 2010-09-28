@@ -115,7 +115,7 @@ class CmdlevelPlugin(b3.plugin.Plugin):
 			raise Warning, '^7Command %s has already level %s' % (command.command, str(level1)+'-'+str(level2))
 			return True
 		else:
-			self.debug('Set level of %s to %s' % (cmd, level))
+			self.debug('Set level of %s to %s' % (command.command, str(level1)+'-'+str(level2)))
 			command.level = (level1, level2)
 			if command.plugin.config.fileName is None or command.plugin.config.fileName == '' or not os.path.exists(command.plugin.config.fileName) or not os.path.isfile(command.plugin.config.fileName):
 				self.debug('Could not open config file %s' %command.plugin.config.fileName)
