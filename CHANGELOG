@@ -1,4 +1,5 @@
 1.0
 -----
+* using level name instead of level is possible
+* checking if level exists
 * debug messages added
-* small changes

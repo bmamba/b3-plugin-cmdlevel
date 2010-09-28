@@ -1,8 +1,34 @@
+This plugin provides the following commands:
+
+cmdlevel
+--------
+
 You can change the command level using !cmdlevel <command> <level>. The plugin
 also changes the configuration file of the appropriate plugin. Instead of
 !cmdlevel you can also use !bmcmdlevel.
 
+Example: 
+If you want that the ban command can be used by player with level full admin (level 60) and above, so type:
+	!cmdlevel ban 60
+or
+	!cmdlevel ban fulladmin
+
+If you want that the warn command can be used by player with level admin (level 40) or full admin (level 60), so type:
+	!cmdlevel warn 40-60
+or
+	!cmdlevel warn admin-fulladmin
+
+
+showcmdlevel
+------------
+
 The command level can be shown using !showcmdlevel <command>.
+
+Example:
+If you want to know the level of the warn command, type
+	!showcmdlevel warn
+
+
 
 This plugin is tested for Urban Terror 4.1 and the B3 bot versions 1.3 and
 1.3.4b.

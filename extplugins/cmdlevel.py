@@ -19,8 +19,9 @@
 # Changelog:
 #
 # 2010-09-26 - 1.0 - BlackMamba
+#  using level name instead of level is possible
+#  checking if level exists
 #  added debug messages
-#  small changes
 #
 # 2010-09-19 - 0.1.0 - BlackMamba
 #  Initial version
@@ -71,21 +72,30 @@ class CmdlevelPlugin(b3.plugin.Plugin):
 		"""\
 		<command> <level> - set the level of a command
 		"""
-		m = re.match('^([a-z]+) ([0-9]+)-?([0-9]*)$', data, re.I)
+		m = re.match('^([a-z0-9]+) ([0-9a-z]+)-?([0-9a-z]*)$', data, re.I)
 		if not m:
 			client.message('^7Invalid parameters')
 			self.debug('Options do not fulfill the requirements - matching failed')
 			return False
-
 		cmd = m.group(1)
-		level1 = int(m.group(2))
+		levelStr = m.group(2)
+		if re.match('^[a-z]+$', levelStr, re.I):
+			level1 = self.getLevelFromDB(levelStr)
+		else:
+			level1 = int(level1Str)
+			self.checkLevel(level1)
 		if len(m.group(3))>0:
-			level2 = int(m.group(3))
+			levelStr = m.group(3)
+			if re.match('^[a-z]+$', levelStr, re.I):
+				level2 = self.getLevelFromDB(levelStr)
+			else:
+				level2 = int(levelStr)
+				self.checkLevel(level2)
 		else:
 			level2 = 100
 		if level1 > level2:
 			client.message('^7Invalid parameters')
-			self.debug('Zweites Level darf nicht kleiner sein als erstes')
+			self.debug('First level muss be greater than or equal second level')
 			return False
 
 		level = str(level1)+'-'+str(level2)
@@ -197,3 +207,24 @@ class CmdlevelPlugin(b3.plugin.Plugin):
 		node.appendChild(text)
 		return node
 
+	def getLevelFromDB(self, levelname):
+		q = 'SELECT level FROM groups WHERE keyword = "%s"' % levelname
+		self.debug('query: %s' % q)
+		cursor = self.console.storage.query(q)
+		if cursor and cursor.rowcount > 0:
+			r = cursor.getRow();
+			self.debug('level name %s is level %s' % (levelname, r['level']))
+			return int(r['level'])
+		else:
+			raise KeyError, '^7Could not find level name'
+
+	def checkLevel(self, level):
+		q = 'SELECT level FROM groups WHERE level = %s' % levelname
+		self.debug('query: %s' % q)
+		cursor = self.console.storage.query(q)
+		if cursor and cursor.rowcount > 0:
+			self.debug('Find level %s' %level)
+			return True
+		else:
+			raise KeyError, '^7Could not find level'
+			self.debug('Could not find level %s' % level)
