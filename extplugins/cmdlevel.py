@@ -18,11 +18,15 @@
 #
 # Changelog:
 #
-# 09/19/2010 - 0.1.0 - BlackMamba
+# 2010-09-26 - 1.0 - BlackMamba
+#  added debug messages
+#  small changes
+#
+# 2010-09-19 - 0.1.0 - BlackMamba
 #  Initial version
 #
 
-__version__ = '0.1.0'
+__version__ = '1.0'
 __author__ = 'BlackMamba'
 
 import xml.dom.minidom
@@ -70,9 +74,10 @@ class CmdlevelPlugin(b3.plugin.Plugin):
 		m = re.match('^([a-z]+) ([0-9]+)-?([0-9]*)$', data, re.I)
 		if not m:
 			client.message('^7Invalid parameters')
+			self.debug('Options do not fulfill the requirements - matching failed')
 			return False
 
-		cmd   = m.group(1)
+		cmd = m.group(1)
 		level1 = int(m.group(2))
 		if len(m.group(3))>0:
 			level2 = int(m.group(3))
@@ -80,6 +85,7 @@ class CmdlevelPlugin(b3.plugin.Plugin):
 			level2 = 100
 		if level1 > level2:
 			client.message('^7Invalid parameters')
+			self.debug('Zweites Level darf nicht kleiner sein als erstes')
 			return False
 
 		level = str(level1)+'-'+str(level2)
@@ -87,10 +93,13 @@ class CmdlevelPlugin(b3.plugin.Plugin):
 			self.setCmdLevel(cmd, level1, level2)
 		except Warning, msg:
 			client.message(str(msg))
+			self.debug(str(msg))
 		except KeyError, msg:
 			client.message(str(msg))
+			self.debug(str(msg))
 		except Exception, msg:
 			client.message('^7Error setting level for %s: %s' % (cmd, str(msg)))
+			self.debug(str(msg))
 		else:
 			client.message('^7Command %s set to level %s' % (cmd, level))
 			return True
@@ -103,10 +112,15 @@ class CmdlevelPlugin(b3.plugin.Plugin):
 			return False
 
 		if command.level == (level1, level2):
-			raise Warning, '^7Command %s is already level %s' % (command.command, str(level1)+'-'+str(level2))
+			raise Warning, '^7Command %s has already level %s' % (command.command, str(level1)+'-'+str(level2))
 			return True
 		else:
+			self.debug('Set level of %s to %s' % (cmd, level))
 			command.level = (level1, level2)
+			if command.plugin.config.fileName is None or command.plugin.config.fileName == '' or not os.path.exists(command.plugin.config.fileName) or not os.path.isfile(command.plugin.config.fileName):
+				self.debug('Could not open config file %s' %command.plugin.config.fileName)
+				raise Warning, '^7Could not write to config file'
+				return True
 			self.loadConfigFile(command.plugin.config.fileName)
 			if level2 == 100:
 				level = str(level1)
@@ -118,13 +132,15 @@ class CmdlevelPlugin(b3.plugin.Plugin):
 
 
 	def loadConfigFile(self, file):
-		filehandle = open(file, "r")
+		self.debug('Read file %s' % file)
+		filehandle = open(file, 'r')
 		self.xml = xml.dom.minidom.parse(filehandle)
 		filehandle.close()
 
 
 	def writeConfigFile(self, file):
-		filehandle = open(file,"w")
+		self.debug('Write file %s' % file)
+		filehandle = open(file,'w')
 		filehandle.write(self.xml.toxml())
 		filehandle.close()
 
@@ -133,8 +149,8 @@ class CmdlevelPlugin(b3.plugin.Plugin):
 		changed = 0
 		if len(self.xml.childNodes) < 1:
 			return
-		for conf in self.xml.childNodes:
-			if conf.nodeType == conf.ELEMENT_NODE and conf.nodeName == "configuration":
+		for conf in self.xml.getElementsByTagName('configuration'):
+			if conf.nodeType == conf.ELEMENT_NODE:
 				settings = conf.getElementsByTagName('settings')
 				for setting in settings:
 					if setting.getAttribute('name') == 'commands':
@@ -151,15 +167,22 @@ class CmdlevelPlugin(b3.plugin.Plugin):
 						if setting.getAttribute('name') == 'commands' and changed == 0:
 							setting.appendChild(self.createCmdLevelNode(cmd,level))
 							changed = 1
+							self.debug('Added a node for the command')
 					if changed == 0:
 						node = self.createCmdNode()
 						node.appendChild(self.createCmdLevelNode(cmd,level))
 						conf.appendChild(node)
+						changed = 1
+						self.debug('Added section "commands" and a node for the command')
+		if changed == 0:
+			self.debug('Could not change XML')
+		else:
+			self.debug('Changed XML')
 
 
 	def createCmdNode(self):
 		impl = xml.dom.getDOMImplementation()
-		newdoc = impl.createDocument(None, "nt", None)
+		newdoc = impl.createDocument(None, 'nt', None)
 		node = newdoc.createElement('settings')
 		node.setAttribute('name','commands')
 		return node
@@ -167,7 +190,7 @@ class CmdlevelPlugin(b3.plugin.Plugin):
 
 	def createCmdLevelNode(self, cmd, level):
 		impl = xml.dom.getDOMImplementation()
-		newdoc = impl.createDocument(None, "nt", None)
+		newdoc = impl.createDocument(None, 'nt', None)
 		node = newdoc.createElement('set')
 		node.setAttribute('name',cmd)
 		text = newdoc.createTextNode(level)
